@@ -10,6 +10,8 @@
 
 	<script src="https://www.gstatic.com/firebasejs/3.7.0/firebase.js"></script>
 
+	<script src="https://cdn.jsdelivr.net/momentjs/2.12.0/moment.min.js"></script>
+
 </head>
 <body>
 	<div class="container">
@@ -108,13 +110,32 @@ $(document).ready(function() {
 
 	dataRef.ref().on("child_added", function(chiquito){
 
-			console.log(chiquito.val().train);
-			console.log(chiquito.val().destination);
-			console.log(chiquito.val().time);
-			console.log(chiquito.val().frequency);
-			console.log(chiquito.val().dateAdded);
+			// console.log(chiquito.val().train);
+			// console.log(chiquito.val().destination);
+			// console.log(chiquito.val().time);
+			//console.log(chiquito.val().frequency);
+			// console.log(chiquito.val().dateAdded);
 
-			$("#logTab").append("<tr><td>" + chiquito.val().train + "</td><td>" + chiquito.val().destination + "</td><td>" + chiquito.val().time + "</td><td>" + chiquito.val().frequency + "</td></tr>");
+			var cnvTime = moment(chiquito.val().time, "hh:mm").subtract(1,"years");
+			
+			var diffTime = moment().diff(moment(cnvTime),"minutes");
+			
+			var remainder = diffTime % chiquito.val().frequency;
+			
+			var waitTime = chiquito.val().frequency - remainder;
+			console.log("WAITING: " + waitTime);
+
+			var nextTrain = moment().add(waitTime, "minutes");
+			console.log("PROXIMA SALIDA: " + moment (nextTrain).format("hh:mm"));
+
+			
+
+			$("#logTab").append("<tr><td>" + chiquito.val().train +
+								"</td><td>" + chiquito.val().destination + 
+								"</td><td>" + chiquito.val().frequency +
+								"</td><td>" + moment(nextTrain).format("hh:mm") + 
+								"</td><td>" + waitTime +
+								"</td></tr>");
 
 
 		}, function(errorObject) {
